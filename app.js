@@ -225,7 +225,7 @@ function renderPanel(){
 }
 
 /* =============== exam =============== */
-let ex=null,exTimer=null;
+window.ex = null,exTimer=null;
 function startExam(opt){
   opt=opt||{};
   let pool;
