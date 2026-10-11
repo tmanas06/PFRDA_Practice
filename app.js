@@ -12,7 +12,32 @@ const statusOf=id=>{const a=progress.attempts[id];if(!a)return null;return a.pic
 const YEARS=[...new Set(QUESTIONS.map(q=>q.year))].sort();
 const SUBJECTS=[...new Set(QUESTIONS.map(q=>q.subject))].sort();
 
-/* =============== nav =============== */
+/* =============== utils & nav =============== */
+function safeScrollToTop(){
+  try{if(typeof window.scrollTo==="function")window.scrollTo(0,0);}catch(e){}
+}
+function formatQuestionContent(text){
+  if(!text)return"";
+  if(text.includes("|")&&text.includes("---")){
+    const parts=text.split(/\n\n+/);
+    return parts.map(part=>{
+      const lines=part.trim().split("\n").map(l=>l.trim()).filter(Boolean);
+      if(lines.length>=2&&lines[0].startsWith("|")&&lines[1].includes("---")){
+        const parseRow=row=>row.split("|").slice(1,-1).map(c=>c.trim());
+        const headers=parseRow(lines[0]);
+        const rows=lines.slice(2).map(parseRow);
+        return `<div class="table-wrap"><table class="data-table"><thead><tr>${
+          headers.map(h=>`<th>${esc(h)}</th>`).join("")
+        }</tr></thead><tbody>${
+          rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")
+        }</tbody></table></div>`;
+      }
+      return `<div>${esc(part).replace(/\n/g,"<br>")}</div>`;
+    }).join("");
+  }
+  return esc(text).replace(/\n/g,"<br>");
+}
+
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 function switchView(v){
   view=v;
@@ -24,7 +49,7 @@ function switchView(v){
   if(v==="repeat")renderRepeating();
   if(v==="dash")renderDash();
   if(v==="stats")renderStats();
-  window.scrollTo(0,0);
+  safeScrollToTop();
 }
 
 /* =============== shared question card =============== */
@@ -42,8 +67,10 @@ function card(q){
   const showBox=show||!!a;
   return `<div class="qcard" id="q${q.id}">
     <div class="qmeta"><span class="tag t-year">${q.year}</span><span class="tag t-phase">${q.phase}</span>
+    ${q.paper?`<span class="tag t-paper">${q.paper}</span>`:""}
+    ${q.qnum?`<span class="tag t-qnum">Q${q.qnum}</span>`:""}
     <span class="tag t-sub">${esc(q.subject)}</span><span class="tag t-top">${esc(q.topic)}</span>${stTag}</div>
-    <div class="qtext">${esc(q.q)}</div>
+    <div class="qtext">${formatQuestionContent(q.q)}</div>
     <div class="options">${opts}</div>
     ${showBox?`<div class="ansbox"><div class="top">Answer: ${q.ans} &mdash; ${esc(q.opts[LETTERS.indexOf(q.ans)])}</div>
       <div class="exp">${esc(q.exp)}</div></div>`:""}
