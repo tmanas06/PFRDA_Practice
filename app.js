@@ -55,12 +55,12 @@ function switchView(v){
 /* =============== shared question card =============== */
 function card(q){
   const a=progress.attempts[q.id];
-  const show=revealAll||view==="repeat";
+  const show=revealAll;
   let opts=q.opts.map((o,i)=>{
     const L=LETTERS[i];let cls="opt";
     if(a){cls+=" locked";if(L===q.ans)cls+=" right";else if(L===a.pick)cls+=" wrong";}
     else if(show&&L===q.ans)cls+=" right";
-    const click=(!a&&view!=="repeat")?`onclick="pick(${q.id},'${L}')"`:"";
+    const click=!a?`onclick="pick(${q.id},'${L}')"`:"";
     return `<div class="${cls}" ${click}><div class="lt">${L}</div><div class="ot">${esc(o)}</div></div>`}).join("");
   const st=statusOf(q.id);
   const stTag=st==="ok"?'<span class="tag t-ok">&#10003; Correct</span>':st==="bad"?'<span class="tag t-bad">&#10007; Wrong</span>':"";
