@@ -240,8 +240,9 @@ function startExam(opt){
   }
   if(!pool.length)return;
   const mode=document.getElementById("exMode").value;
+  const review=document.getElementById("exReviewMode").checked;
   ex={mode,qs:pool,cur:0,ans:{},started:Date.now(),
-      timed:mode==="timed",neg:mode!=="practice",
+      timed:mode==="timed",neg:mode!=="practice",review,
       dur:mode==="timed"?40*60:Infinity,label:opt.label||""};
   document.getElementById("examSetup").classList.add("hidden");
   document.getElementById("examResult").classList.add("hidden");
@@ -267,12 +268,16 @@ function renderExamQ(){
     const L=LETTERS[i];
     const cls="opt"+(picked===L?" picked":"");
     return `<div class="${cls}" onclick="examPick('${L}')"><div class="lt">${L}</div><div class="ot">${esc(o)}</div></div>`}).join("");
+  const showAns=ex.review && picked;
   document.getElementById("exQ").innerHTML=`
     <div class="qmeta"><span class="tag t-year">Q ${ex.cur+1}/${ex.qs.length}</span>
     <span class="tag t-sub">${esc(q.subject)}</span><span class="tag t-top">${esc(q.topic)}</span>
     <span class="tag t-year">${q.year}</span><span class="tag t-phase">${q.phase}</span>
-    ${ex.label?`<span class="tag t-swap">${esc(ex.label)}</span>`:""}</div>
+    ${ex.label?`<span class="tag t-swap">${esc(ex.label)}</span>`:""}
+    ${ex.review?`<span class="tag t-swap">Review</span>`:""}</div>
     <div class="qtext">${esc(q.q)}</div><div class="options">${opts}</div>
+    ${showAns?`<div class="ansbox"><div class="top">Answer: ${q.ans} &mdash; ${esc(q.opts[LETTERS.indexOf(q.ans)])}</div>
+      <div class="exp">${esc(q.exp)}</div></div>`:""}
     <div class="qactions">
       <button class="btn btn-ghost btn-sm" id="exPrev" onclick="examNav(-1)" ${ex.cur===0?"disabled":""}>&larr; Previous</button>
       <button class="btn btn-primary btn-sm" onclick="examNav(1)">${ex.cur===ex.qs.length-1?"Review":"Next &rarr;"}</button>

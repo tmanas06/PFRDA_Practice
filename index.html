@@ -413,6 +413,12 @@ tr:hover td{background:#f8fafc}
         </select></div>
       <div class="field"><label>Subject filter</label><select id="exSubject"></select></div>
       <div class="field"><label>Year filter</label><select id="exYear"><option value="">All years</option></select></div>
+      <div class="field" style="align-self:end">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
+          <input type="checkbox" id="exReviewMode" style="width:18px;height:18px;accent-color:var(--brand)">
+          <span>Review mode (show answer after picking)</span>
+        </label>
+      </div>
     </div>
     <button class="btn btn-primary" onclick="startExam()">🏁 Start Exam</button>
   </div>
