@@ -101,6 +101,7 @@ select:focus,input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0
 .qmeta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.7rem;font-weight:800;letter-spacing:.3px}
 .t-year{background:#e0e7ff;color:#3730a3}.t-phase{background:#fce7f3;color:#9d174d}
+.t-paper{background:#e0f2fe;color:#0369a1}.t-qnum{background:#fef3c7;color:#b45309;font-weight:800}
 .t-sub{background:#d1fae5;color:#065f46}.t-top{background:#fef3c7;color:#92400e}
 .t-ok{background:var(--ok-soft);color:#166534}.t-bad{background:var(--bad-soft);color:#991b1b}
 .t-swap{background:#ede9fe;color:#5b21b6}
@@ -120,6 +121,27 @@ select:focus,input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0
 .ansbox .top{font-weight:800;color:#15803d;font-size:.92rem}
 .ansbox .exp{margin-top:7px;font-size:.88rem;color:#374151;line-height:1.65}
 .qactions{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+
+/* ---------- tables inside questions ---------- */
+.table-wrap{margin:12px 0;overflow-x:auto;border-radius:10px;border:1px solid var(--line)}
+.data-table{width:100%;border-collapse:collapse;font-size:.86rem;text-align:left}
+.data-table th,.data-table td{padding:8px 12px;border:1px solid var(--line)}
+.data-table th{background:var(--brand-soft);color:var(--brand);font-weight:750}
+.data-table tr:nth-child(even){background:rgba(0,0,0,.02)}
+
+/* ---------- descriptive english cards ---------- */
+.desc-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+.desc-sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.desc-title{font-size:1.15rem;font-weight:800}
+.desc-meta{display:flex;gap:8px;align-items:center}
+.desc-inst{font-size:.92rem;color:var(--text);font-weight:600;margin-bottom:14px;padding:10px 14px;background:var(--brand-soft);border-radius:10px;border-left:4px solid var(--brand)}
+.desc-passage{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px;font-size:.9rem;line-height:1.7;color:var(--text);margin-bottom:16px;max-height:360px;overflow-y:auto;white-space:pre-line}
+.desc-topics{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.desc-topic-item{padding:10px 14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;font-size:.9rem;font-weight:600}
+.desc-workspace{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
+.desc-textarea{width:100%;min-height:120px;padding:12px;font-family:inherit;font-size:.9rem;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);resize:vertical}
+.desc-wordcount{font-size:.8rem;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
+.desc-tips{margin-top:12px;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:.85rem;color:#166534}
 
 /* ---------- bars ---------- */
 .brow{display:flex;align-items:center;gap:12px;margin-bottom:11px}
@@ -206,6 +228,15 @@ tr:hover td{background:#f8fafc}
 :root[data-theme="dark"] .t-ok{color:#86efac}
 :root[data-theme="dark"] .t-bad{color:#fca5a5}
 :root[data-theme="dark"] .t-swap{background:#2c2153;color:#c4b5fd}
+:root[data-theme="dark"] .t-paper{background:#0c4a6e;color:#7dd3fc}
+:root[data-theme="dark"] .t-qnum{background:#451a03;color:#fde047}
+:root[data-theme="dark"] .desc-card{background:var(--card);border-color:var(--line)}
+:root[data-theme="dark"] .desc-inst{background:#1e1b4b;border-left-color:#818cf8}
+:root[data-theme="dark"] .desc-topic-item{background:#101a30}
+:root[data-theme="dark"] .desc-passage{background:#0e1729}
+:root[data-theme="dark"] .desc-tips{background:#052e1a;border-color:#166534;color:#bbf7d0}
+:root[data-theme="dark"] .data-table tr:nth-child(even){background:rgba(255,255,255,.02)}
+:root[data-theme="dark"] .data-table th{background:#1e293b;color:#a5b4fc}
 :root[data-theme="dark"] .opt{background:#101a30}
 :root[data-theme="dark"] .opt:hover{background:#1b2a4d;border-color:#818cf8}
 :root[data-theme="dark"] .opt.picked{background:#283564;border-color:#a5b4fc}
@@ -334,11 +365,13 @@ tr:hover td{background:#f8fafc}
 <div class="view" id="v-pyq">
   <div class="card">
     <h2>Past Year Questions</h2>
-    <div class="sub">Select a year → then a phase → review with answers or attempt as a timed test.</div>
+    <div class="sub">Select a year → phase &amp; paper → review with answers or attempt as a timed test.</div>
     <label class="label">Year</label>
     <div class="chips" id="yYears"></div>
     <label class="label">Phase</label>
     <div class="chips" id="yPhases"></div>
+    <label class="label" id="yPaperLabel">Paper</label>
+    <div class="chips" id="yPapers"></div>
     <div class="search-wrap" style="margin-bottom:14px">
       <svg viewBox="0 0 24 24" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input type="text" id="ySearch" placeholder="Search inside this year's paper…" oninput="renderPYQ()">

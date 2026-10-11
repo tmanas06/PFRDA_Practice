@@ -16,25 +16,33 @@
     "Media": { "estQs": "1-3", "focus": ["Convergence", "AR/VR", "Algorithms", "Micro-targeting"] }
   },
   "yearlyDistribution": {
-    "2021_Phase1": { "Companies Act": 9, "Commerce": 8, "Management": 7, "Finance": 6, "Costing": 5, "Economics": 8, "Pension": 7 },
-    "2022_Phase1": { "Companies Act": 9, "Commerce": 8, "Management": 7, "Finance": 5, "Costing": 6, "Economics": 6, "Pension": 7 },
-    "2021_Phase2": { "Companies Act": 10, "Management": 7, "Finance": 8, "Costing": 13, "Economics": 5, "Pension": 7 },
-    "2022_Phase2": { "Companies Act": 7, "Management": 8, "Finance": 4, "Costing": 7, "Economics": 7, "Pension": 7, "Current Affairs": 3 }
+    "2021_Phase1_Paper2": { "Total": 50, "Stream_MCQ": 50 },
+    "2021_Phase2_Paper1": { "Total": "100 Marks", "Type": "Descriptive English (Essay, Precis, RC)" },
+    "2021_Phase2_Paper2": { "Total": 50, "Stream_MCQ": 50 },
+    "2022_Phase1_Paper1": { "Total": 80, "Quant": 20, "Reasoning": 20, "English": 20, "GA": 20 },
+    "2022_Phase1_Paper2": { "Total": 50, "Stream_MCQ": 50 },
+    "2022_Phase2_Paper1": { "Total": "100 Marks", "Type": "Descriptive English (Essay, Precis, RC)" },
+    "2022_Phase2_Paper2": { "Total": 50, "Stream_MCQ": 50 },
+    "2025_Phase1_Paper1": { "Total": 80, "English": 20, "Quant": 20, "Reasoning": 20, "GA": 20 },
+    "2025_Phase1_Paper2": { "Total": 46, "Stream_MCQ": 46 },
+    "2025_Phase2_Paper1": { "Total": "100 Marks", "Type": "Descriptive English (Essay, Precis, RC)" },
+    "2025_Phase2_Paper2": { "Total": 50, "Stream_MCQ": 50 }
   },
   "repeatedThemes": [
-    "Companies Act: Section numbers (138, 149, 62, 42, 55, 66, 123, 173, 174, 24, 31, 26, 39, 43, 73)",
-    "Pension Sector: NPS architecture (CRA, POP, PRAN), withdrawal rules, APY/Vatsalya",
-    "Costing: BEP, MPV/MLV/LEV formulas, Kaizen/JIT/5S/TPM, Target costing",
-    "Finance: WACC/CAPM/NPV, Regulators, Green Bonds, Account Aggregator",
-    "Accountancy: Ind AS 115/116, Ratio analysis, Cash flow classification",
-    "Economics: IS-LM shifts, Multiplier, Phillips curve, Money multiplier",
-    "Management: Leadership styles, Maslow, Communication model, MBO steps"
+    "Companies Act: Section numbers (138, 149, 62, 42, 55, 66, 123, 173, 174, 24, 31, 26, 39, 43, 73, 408)",
+    "Pension Sector: NPS architecture (CRA, POP, PRAN, Vatsalya), withdrawal rules, APY, EPS-95",
+    "Costing: BEP, MPV/MLV/LEV formulas, Kaizen/JIT/5S/TPM, Target costing, ABC",
+    "Finance: WACC/CAPM/NPV, Regulators, Green Bonds, Account Aggregator, SGB, Financial Inclusion",
+    "Accountancy: Ind AS 7/16/113, Ratio analysis (Current, Acid Test, ROCE), Cash flow classification",
+    "Economics: IS-LM shifts, Multiplier, Phillips curve, Money multiplier, Law of Demand",
+    "Management: Leadership styles, Maslow/Hertzberg, Communication barriers, MBO, Pygmalion"
   ],
   "cutoffs": {
     "phase1_paper2_qualifying": "40-45/100",
     "phase2_paper2_merit": "60+/100"
   },
-  "totalPYQs": 447,
+  "totalObjectiveMCQs": 456,
+  "totalDescriptivePapers": 3,
   "examDates2026": {
     "phase1": "15 October 2026",
     "phase2": "20 November 2026",

@@ -175,48 +175,226 @@ function practiceFiltered(){
   if(sort==="un")list=[...list].sort((a,b)=>(progress.attempts[a.id]?1:0)-(progress.attempts[b.id]?1:0));
   return list;
 }
-let pPage=0;const P_SIZE=8;
+var pPage=0;
+window.pPage=pPage;
+const P_SIZE=8;
 function renderPractice(){
+  if(window.pPage!==undefined)pPage=window.pPage;
   const list=practiceFiltered();
   const pages=Math.max(1,Math.ceil(list.length/P_SIZE));
-  if(pPage>=pages)pPage=0;
+  if(pPage>=pages){pPage=0;window.pPage=0;}
   const page=list.slice(pPage*P_SIZE,(pPage+1)*P_SIZE);
   document.getElementById("pCount").textContent=`${list.length} question${list.length!==1?"s":""} match`;
   document.getElementById("pList").innerHTML=list.length?page.map(card).join(""):
     `<div class="card empty"><div class="big">&#128269;</div>No questions match. Try clearing filters or search.</div>`;
   document.getElementById("pPager").innerHTML=list.length>P_SIZE?
-    `<button class="btn btn-ghost btn-sm" ${pPage===0?"disabled":""} onclick="pPage--;renderPractice()">&larr; Prev</button>
+    `<button class="btn btn-ghost btn-sm" ${pPage===0?"disabled":""} onclick="window.pPage=pPage-1;renderPractice()">&larr; Prev</button>
      <span class="count-pill">Page ${pPage+1} / ${pages}</span>
-     <button class="btn btn-ghost btn-sm" ${pPage>=pages-1?"disabled":""} onclick="pPage++;renderPractice()">Next &rarr;</button>`:"";
+     <button class="btn btn-ghost btn-sm" ${pPage>=pages-1?"disabled":""} onclick="window.pPage=pPage+1;renderPractice()">Next &rarr;</button>`:"";
 }
 
 /* =============== past year papers =============== */
-let pyYear=YEARS[YEARS.length-1],pyPhase="";
+var pyYear=2025,pyPhase="",pyPaper="";
+window.pyYear=pyYear;
+window.pyPhase=pyPhase;
+window.pyPaper=pyPaper;
+
+window.setPYYear=function(y){
+  pyYear=window.pyYear=y;
+  pyPhase=window.pyPhase="";
+  pyPaper=window.pyPaper="";
+  renderPYQ();
+};
+window.setPYPhase=function(p){
+  pyPhase=window.pyPhase=p;
+  pyPaper=window.pyPaper="";
+  renderPYQ();
+};
+window.setPYPaper=function(pp){
+  pyPaper=window.pyPaper=pp;
+  renderPYQ();
+};
+
+function renderDescriptivePaperCard(paper){
+  let secHtml=paper.sections.map((sec,idx)=>{
+    const sId=`desc_${paper.year}_${idx}`;
+    let content="";
+    if(sec.type==="essay"){
+      content=`
+        <div class="desc-topics">
+          ${sec.topics.map((t,i)=>`<div class="desc-topic-item"><b>${i+1}.</b> ${esc(t)}</div>`).join("")}
+        </div>
+        <div class="desc-workspace">
+          <label style="font-weight:700;font-size:.85rem;display:block;margin-bottom:6px">Draft your essay here:</label>
+          <textarea class="desc-textarea" id="${sId}_txt" placeholder="Select one topic and write your essay (${sec.wordLimit})..." oninput="updateDescWordCount('${sId}_txt','${sId}_wc',250,270)"></textarea>
+          <div class="desc-wordcount"><span id="${sId}_wc">Words: <b>0</b> (Target: ${sec.wordLimit})</span></div>
+          ${sec.outlineTips?`<div class="desc-tips"><b>Recommended Structure:</b><ul style="margin:6px 0 0 16px;line-height:1.6">${sec.outlineTips.map(tip=>`<li>${esc(tip)}</li>`).join("")}</ul></div>`:""}
+        </div>`;
+    }else if(sec.type==="precis"){
+      content=`
+        <div class="desc-passage"><b>Passage:</b>\n\n${esc(sec.passage)}</div>
+        <div class="desc-workspace">
+          <label style="font-weight:700;font-size:.85rem;display:block;margin-bottom:6px">Title for your pr&eacute;cis:</label>
+          <input type="text" id="${sId}_title" placeholder="Suggested title: ${esc(sec.suggestedTitle)}" style="width:100%;padding:9px;margin-bottom:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)">
+          <label style="font-weight:700;font-size:.85rem;display:block;margin-bottom:6px">Draft your pr&eacute;cis here:</label>
+          <textarea class="desc-textarea" id="${sId}_txt" placeholder="Write pr&eacute;cis in ${sec.wordLimit}..." oninput="updateDescWordCount('${sId}_txt','${sId}_wc',140,160)"></textarea>
+          <div class="desc-wordcount"><span id="${sId}_wc">Words: <b>0</b> (Target: ${sec.wordLimit})</span></div>
+          ${sec.keyPoints?`<div class="desc-tips"><b>Key Points Covered in Model Pr&eacute;cis:</b><ul style="margin:6px 0 0 16px;line-height:1.6">${sec.keyPoints.map(kp=>`<li>${esc(kp)}</li>`).join("")}</ul></div>`:""}
+        </div>`;
+    }else if(sec.type==="rc"){
+      content=`
+        <div class="desc-passage"><b>Passage:</b>\n\n${esc(sec.passage)}</div>
+        <div class="desc-topics">
+          <b>Questions to answer in your own words:</b>
+          ${sec.questions.map((q,i)=>`
+            <div style="margin-top:10px">
+              <div class="desc-topic-item"><b>Q${i+1}.</b> ${esc(q)}</div>
+              <textarea class="desc-textarea" style="min-height:70px;margin-top:6px" placeholder="Your answer to Q${i+1}..."></textarea>
+            </div>
+          `).join("")}
+        </div>`;
+    }
+
+    return `<div class="desc-card" id="${sId}">
+      <div class="desc-sec-hdr">
+        <span class="desc-title">${sec.title}</span>
+        <div class="desc-meta">
+          <span class="tag t-phase">${sec.marks} Marks</span>
+          ${sec.wordLimit?`<span class="tag t-top">${sec.wordLimit}</span>`:""}
+        </div>
+      </div>
+      <div class="desc-inst">${esc(sec.instruction)}</div>
+      ${content}
+    </div>`;
+  }).join("");
+
+  return `<div class="card" style="border:2px solid var(--brand);background:linear-gradient(180deg,var(--brand-soft) 0%,var(--card) 90px);margin-bottom:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <h3 style="margin:0;color:var(--brand);font-size:1.25rem">&#9997;&#65039; ${esc(paper.title)}</h3>
+      <div style="display:flex;gap:6px">
+        <span class="tag t-year">${paper.duration}</span>
+        <span class="tag t-phase">${paper.totalMarks} Marks</span>
+      </div>
+    </div>
+    <div class="sub">Complete recollected descriptive paper from EduTap with Essay Writing, Pr&eacute;cis Writing, and Reading Comprehension with interactive draft pads.</div>
+  </div>${secHtml}`;
+}
+
+function updateDescWordCount(txtId,cntId,minW,maxW){
+  const el=document.getElementById(txtId);
+  const cnt=document.getElementById(cntId);
+  if(!el||!cnt)return;
+  const words=el.value.trim()?el.value.trim().split(/\s+/).length:0;
+  let status="";
+  if(minW&&maxW){
+    if(words<minW)status=`(${minW-words} words to min ${minW})`;
+    else if(words>maxW)status=`(${words-maxW} words over max ${maxW})`;
+    else status=`✓ Target met (${words} words)`;
+  }
+  cnt.innerHTML=`Words: <b>${words}</b> ${status}`;
+}
+
 function renderPYQ(){
+  if(window.pyYear!==undefined)pyYear=window.pyYear;
+  if(window.pyPhase!==undefined)pyPhase=window.pyPhase;
+  if(window.pyPaper!==undefined)pyPaper=window.pyPaper;
+
   document.getElementById("yYears").innerHTML=YEARS.map(y=>
-    `<button class="chip ${pyYear===y?"active":""}" onclick="pyYear=${y};pyPhase='';renderPYQ()">${y}</button>`).join("")+
+    `<button class="chip ${pyYear===y?"active":""}" onclick="setPYYear(${y})">${y}</button>`).join("")+
     [2023,2024].filter(y=>!YEARS.includes(y)).map(y=>
     `<button class="chip dim" title="No questions in bank for this year">${y} &middot; n/a</button>`).join("");
   document.getElementById("yPhases").innerHTML=["","Phase 1","Phase 2"].map(p=>
-    `<button class="chip ${pyPhase===p?"active":""}" onclick="pyPhase='${p}';renderPYQ()">${p||"Both phases"}</button>`).join("");
+    `<button class="chip ${pyPhase===p?"active":""}" onclick="setPYPhase('${p}')">${p||"Both phases"}</button>`).join("");
+
+  let paperOptions=[];
+  if(pyPhase==="Phase 1"){
+    if(pyYear===2021){
+      paperOptions=[{id:"Paper 2",label:"Paper 2 (General Stream · 50 Qs)"}];
+      if(pyPaper!=="Paper 2")pyPaper=window.pyPaper="Paper 2";
+    }else if(pyYear===2022){
+      paperOptions=[
+        {id:"",label:"Both papers (130 Qs)"},
+        {id:"Paper 1",label:"Paper 1 (QRE & GA · 80 Qs)"},
+        {id:"Paper 2",label:"Paper 2 (General Stream · 50 Qs)"}
+      ];
+    }else if(pyYear===2025){
+      paperOptions=[
+        {id:"",label:"Both papers (126 Qs)"},
+        {id:"Paper 1",label:"Paper 1 (QRE & GA · 80 Qs)"},
+        {id:"Paper 2",label:"Paper 2 (General Stream · 46 Qs)"}
+      ];
+    }
+  }else if(pyPhase==="Phase 2"){
+    paperOptions=[
+      {id:"",label:"Both papers"},
+      {id:"Paper 1",label:"Paper 1 (Descriptive English · 100M)"},
+      {id:"Paper 2",label:"Paper 2 (General Stream · 50 Qs)"}
+    ];
+  }else{
+    paperOptions=[
+      {id:"",label:"All papers"},
+      {id:"Paper 1",label:"Paper 1"},
+      {id:"Paper 2",label:"Paper 2"}
+    ];
+  }
+
+  const paperChipsEl=document.getElementById("yPapers");
+  const paperLabelEl=document.getElementById("yPaperLabel");
+  if(paperChipsEl){
+    paperChipsEl.innerHTML=paperOptions.map(opt=>
+      `<button class="chip ${pyPaper===opt.id?"active":""}" onclick="setPYPaper('${opt.id}')">${opt.label}</button>`
+    ).join("");
+    if(paperLabelEl)paperLabelEl.style.display=paperOptions.length?"":"none";
+  }
+
   const s=document.getElementById("ySearch").value.trim().toLowerCase();
   let list=QUESTIONS.filter(q=>q.year===pyYear&&(!pyPhase||q.phase===pyPhase));
-  if(s)list=list.filter(q=>(q.q+" "+q.topic+" "+q.subject+" "+q.exp+" "+q.opts.join(" ")).toLowerCase().includes(s));
-  const n1=list.filter(q=>q.phase==="Phase 1").length,n2=list.length-n1;
+  if(pyPaper){
+    list=list.filter(q=>q.paper===pyPaper);
+  }
+  if(s){
+    list=list.filter(q=>(q.q+" "+q.topic+" "+q.subject+" "+q.exp+" "+q.opts.join(" ")).toLowerCase().includes(s));
+  }
+
+  const showDesc=(pyPhase==="Phase 2"||!pyPhase)&&(pyPaper==="Paper 1"||!pyPaper)&&window.DESCRIPTIVE_PAPERS&&window.DESCRIPTIVE_PAPERS[String(pyYear)];
+  const descPaper=showDesc?window.DESCRIPTIVE_PAPERS[String(pyYear)]:null;
+
   document.getElementById("yCount").textContent=`${list.length} questions`;
-  document.getElementById("yInfo").innerHTML=list.length?
-    `<div class="note">&#128218; <b>${pyYear} paper in bank</b> &mdash; Phase 1 Paper 2: ${n1} Qs &middot; Phase 2 Paper 2: ${n2} Qs.
-     Memory-based reconstruction; PFRDA does not officially release full papers.</div>`:
-    `<div class="card empty"><div class="big">&#128237;</div><b>No questions available for ${pyYear} ${pyPhase?"&middot; "+pyPhase:""} yet.</b><br>
+
+  if(!list.length&&!descPaper){
+    document.getElementById("yInfo").innerHTML=`<div class="card empty"><div class="big">&#128237;</div><b>No questions available for ${pyYear} ${pyPhase?"&middot; "+pyPhase:""} yet.</b><br>
      Papers for 2023 &amp; 2024 were not added to this bank (no memory-based paper found).</div>`;
-  document.getElementById("yActions").classList.toggle("hidden",!list.length);
-  document.getElementById("yList").innerHTML=list.map(card).join("");
+    document.getElementById("yActions").classList.add("hidden");
+    document.getElementById("yList").innerHTML="";
+    return;
+  }
+
+  document.getElementById("yActions").classList.remove("hidden");
+
+  let infoNote=`<div class="note">&#128218; <b>${pyYear} paper in bank:</b> `;
+  if(pyYear===2021){
+    infoNote+=`Phase 1 Paper 2: 50 Qs &middot; Phase 2 Paper 1: Descriptive English &middot; Phase 2 Paper 2: 50 Qs. <i>(Note: EduTap recollected Phase 1 Paper 2 and Phase 2; Phase 1 Paper 1 was not recollected for 2021)</i>.`;
+  }else if(pyYear===2022){
+    infoNote+=`Phase 1 Paper 1 (QRE &amp; GA): 80 Qs &middot; Phase 1 Paper 2: 50 Qs &middot; Phase 2 Paper 1: Descriptive English &middot; Phase 2 Paper 2: 50 Qs.`;
+  }else if(pyYear===2025){
+    infoNote+=`Phase 1 Paper 1 (QRE &amp; GA): 80 Qs &middot; Phase 1 Paper 2: 46 Qs &middot; Phase 2 Paper 1: Descriptive English &middot; Phase 2 Paper 2: 50 Qs.`;
+  }
+  infoNote+=`</div>`;
+  document.getElementById("yInfo").innerHTML=infoNote;
+
+  let outHtml="";
+  if(descPaper&&(!s||descPaper.title.toLowerCase().includes(s)||"descriptive english essay precis comprehension".includes(s))){
+    outHtml+=renderDescriptivePaperCard(descPaper);
+  }
+  outHtml+=list.map(card).join("");
+  document.getElementById("yList").innerHTML=outHtml;
 }
+
 function yearTest(){
-  const list=QUESTIONS.filter(q=>q.year===pyYear&&(!pyPhase||q.phase===pyPhase));
+  let list=QUESTIONS.filter(q=>q.year===pyYear&&(!pyPhase||q.phase===pyPhase)&&(!pyPaper||q.paper===pyPaper));
   if(!list.length)return;
   switchView("exam");
-  startExam({ids:list.map(q=>q.id),label:`${pyYear} ${pyPhase||"both phases"}`});
+  startExam({ids:list.map(q=>q.id),label:`${pyYear} ${pyPhase||"both phases"} ${pyPaper||""}`.trim()});
 }
 
 /* =============== repeating =============== */
@@ -379,7 +557,7 @@ function endExam(){
     <div class="ansbox"><div class="top">Answer: ${q.ans} &mdash; ${esc(q.opts[LETTERS.indexOf(q.ans)])}</div>
     <div class="exp">${esc(q.exp)}</div></div></div>`}).join("");
   updateHeader();
-  window.scrollTo(0,0);
+  safeScrollToTop();
 }
 function resetExam(){
   document.getElementById("examSetup").classList.remove("hidden");
@@ -452,14 +630,19 @@ function renderStats(){
     Finance:[6,5,"3-5"],Costing:[5,6,"4-5"],Economics:[8,6,"3-4"],"Pension Sector":[7,7,"4-6"]};
   document.getElementById("sYear").innerHTML=Object.entries(yr).map(([s,v])=>
     `<tr><td><b>${s}</b></td><td>${v[0]}</td><td>${v[1]}</td><td>${((v[0]+v[1])/2).toFixed(1)}</td><td>${v[2]}</td></tr>`).join("");
-  const bm={};QUESTIONS.forEach(q=>{bm[q.subject]=(bm[q.subject]||0)+1});
-  const mx=Math.max(...Object.values(bm));
-  document.getElementById("sBank").innerHTML=Object.entries(bm).sort((a,b)=>b[1]-a[1]).map(([s,n])=>
-    `<div class="brow"><div class="blabel">${s}</div>
+  const CORE_7 = ["Companies Act","Finance","Costing","Pension Sector","Commerce & Accountancy","Management","Economics"];
+  const bm={};
+  CORE_7.forEach(s => { bm[s] = 0; });
+  QUESTIONS.forEach(q => { if(CORE_7.includes(q.subject)) bm[q.subject] = (bm[q.subject]||0)+1; });
+  const mx=Math.max(...Object.values(bm), 1);
+  document.getElementById("sBank").innerHTML=CORE_7.map(s => {
+    const n = bm[s] || 0;
+    return `<div class="brow"><div class="blabel">${s}</div>
     <div class="btrack"><div class="bfill" style="width:${n/mx*100}%;background:var(--ok)">${n}</div></div>
-    <div class="bval">${n}</div></div>`).join("")+
-    `<p class="sub" style="margin-top:10px">Total ${QUESTIONS.length} questions &middot; `+
-    `${QUESTIONS.filter(q=>q.year==2021).length} from 2021, ${QUESTIONS.filter(q=>q.year==2022).length} from 2022, ${QUESTIONS.filter(q=>q.year==2025).length} from 2025</p>`;
+    <div class="bval">${n}</div></div>`;
+  }).join("")+
+  `<p class="sub" style="margin-top:10px">Total ${QUESTIONS.length} questions across Phase 1 &amp; Phase 2 &middot; `+
+  `${QUESTIONS.filter(q=>q.year==2021).length} from 2021, ${QUESTIONS.filter(q=>q.year==2022).length} from 2022, ${QUESTIONS.filter(q=>q.year==2025).length} from 2025 (includes 160 Qs from Paper 1 Quantitative, Reasoning, English &amp; General Awareness)</p>`;
   const nw=[["PFRDA Act 2013","2-4 Qs: Authority, NPS provisions, intermediaries, penalties"],
     ["Union Budget &amp; Economic Survey","2-4 Qs: deficit types, key announcements, Survey themes"],
     ["AI / Machine Learning","2-4 Qs: supervised/unsupervised, LLMs, overfitting, cross-validation"],

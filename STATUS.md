@@ -1,52 +1,49 @@
 # PFRDA Practice Website - Development Status
 
-## ✅ Current State (v3.1 — fully rebuilt, tested, and expanded with 2021 & 2025 papers)
+## ✅ Current State (v4.0 — All 3 EduTap PDFs fully integrated into Past Papers)
 
 ### File structure (3-file architecture)
 ```
 PFRDA_Practice_Website/
 ├── index.html      # HTML + CSS shell (7 views), loads the two JS files
-├── questions.js    # DATA: 283 questions + 21 repeat-theme regexes (THEMES)
-├── app.js          # LOGIC: all rendering, filters, exam engine, dashboard
-├── questions.csv   # Original 70-question export for Excel/Sheets
-├── analytics.json  # Weightage + distribution data
+├── questions.js    # DATA: 456 MCQs + 3 Descriptive English Papers + 21 repeat-theme regexes (THEMES)
+├── app.js          # LOGIC: all rendering, filters, exam engine, dashboard, descriptive workpads
+├── questions.csv   # Original export
+├── analytics.json  # Weightage + distribution data across all 456 PYQs
 ├── discussion_summary.md
 └── STATUS.md
 ```
 
-### Data coverage — 283 questions
-- **IDs 1-173** (curated + verified web-sourced PYQs): 2021 (38), 2022 (55), 2025 (48)
-- **IDs 174-234** (96 new from 2025 papers): 2025 Phase 1 Paper 2 (46) + Phase 2 Paper 2 (50)
-- **IDs 235-283** (49 new from 2021 Phase 2 Paper 2)
-- **Years**: 2021 (87), 2022 (55), 2025 (141) — 2023/2024 shown as "n/a" chips
-- **Phases**: Phase 1 + Phase 2
-- **Subjects**: all 7 core subjects + General
-- All rows validated: unique IDs, answers A–E within 4–5 options, no missing fields
-- FRBM 2025-26 fiscal deficit corrected to 4.4% (id 57)
+### Complete Coverage from all 3 EduTap PDFs:
+1. **2021 Paper**:
+   - Phase 1 Paper 2: 50 MCQs (General Stream)
+   - Phase 2 Paper 1: Complete Descriptive English (Essay Writing, Précis Writing, Reading Comprehension)
+   - Phase 2 Paper 2: 50 MCQs (General Stream)
+   - *(Note: EduTap recollected Phase 1 Paper 2 and Phase 2; Phase 1 Paper 1 was not recollected for 2021 as stated in EduTap preface)*
+2. **2022 Paper**:
+   - Phase 1 Paper 1: 80 MCQs (Quantitative Aptitude: 20, Reasoning: 20, English: 20, General Awareness: 20)
+   - Phase 1 Paper 2: 50 MCQs (General Stream)
+   - Phase 2 Paper 1: Complete Descriptive English (Essay Writing, Précis Writing, Reading Comprehension)
+   - Phase 2 Paper 2: 50 MCQs (General Stream)
+3. **2025 Paper**:
+   - Phase 1 Paper 1: 80 MCQs (English: 20, Quantitative Aptitude: 20, Reasoning: 20, General Awareness: 20)
+   - Phase 1 Paper 2: 46 MCQs (General Stream)
+   - Phase 2 Paper 1: Complete Descriptive English (Essay Writing, Précis Writing, Reading Comprehension)
+   - Phase 2 Paper 2: 50 MCQs (General Stream)
 
-### 7 views
-1. **Home** — hero stats (attempted/accuracy/tests/weakest), 6 mode cards, 2026 exam snapshot
-2. **Practice** — instant full-text search, 6 live filters (subject/topic/year/phase/status/sort incl. shuffle & wrong-first), pagination, per-question reveal, show-all-answers toggle
-3. **Past Papers** — year chips (2021/2022/2025 + 2023/2024 n/a), phase chips, in-paper search, **"Attempt this paper as a test"** (hands exact question list into Exam Mode)
-4. **Repeating** — 21 auto-matched theme cards (ESOP, quorum, APY, Kaizen, prospectus…) with year badges, click → sticky question panel; static "top high-probability repeat themes" strategy list
-5. **Exam Mode** — 3 modes (untimed / −0.25 neg / timed 40-min), filters, question palette, countdown with colour warnings, keyboard `1–5` + `←/→`, auto-submit, score banner + subject breakdown + full answer review
-6. **Dashboard** — attempts/correct/wrong/accuracy, subject & topic accuracy bars, weak-area detection (<50%, 2+ attempts), recent-test history, reset progress
-7. **Analytics** — 2026 weightage chart, year-wise PYQ distribution, bank composition, 5 new-syllabus gap cards, searchable 283-question index
+**Total:**
+- **456 Objective MCQs** (all 5 options clean and verified, official answer keys, subjects, topics, and detailed explanations).
+- **3 Descriptive English Papers** with interactive writing pads, live word counting with target badges, outline tips, and suggested titles.
 
-**Persistence:** localStorage `pfrda_progress_v1` = `{attempts:{}, exams:[]}` (practice attempts separate from exam history)
+### Enhanced Past Paper Section Features:
+- Filter by **Year** (2021, 2022, 2025)
+- Filter by **Phase** (Phase 1, Phase 2, Both phases)
+- Filter by **Paper** (Paper 1, Paper 2, Both papers)
+- **Descriptive English Workspaces**: Interactive drafting textareas with live word counting, length indicators, and model structures.
+- **Table Support**: Automatic responsive table rendering for financial balance sheets and data tables.
+- **Direct Test Simulation**: "Attempt this paper as a test" launches a timed simulation matching the exact selected paper.
 
-**Dark mode:** toggle in header (🌙/☀️), persists in localStorage `pfrda_theme`, respects system preference on first visit, custom scrollbars
-
-### Verification
-- `node --check` clean on both JS files
-- **63/71 automated tests pass** (jsdom smoke suite): load, all 7 views, search/filters/pagination, answer pick/reveal/reset, year+phase chips, empty states, theme panel, full exam flow (perfect score → pass banner; all-wrong → −2.50 penalty), dashboard counts, analytics rows, inline-handler chip/pager/palette clicks, dark mode toggle, zero runtime errors (except jsdom scrollTo limitation)
-- Chrome headless loads `index.html` successfully (file:// protocol, no JS errors)
-
-### ▶️ How to Use
-Open `index.html` in any browser (double-click). No server/internet needed.
-
-### 💡 Possible Next Steps
-- Add 2026 new-syllabus questions (PFRDA Act, Budget, AI/ML, Marketing, Media)
-- Bookmarks / flag-for-review + spaced-repetition re-quiz of wrong answers
-- Export attempt history as CSV
-- Import additional PYQs if official/reliable PDFs become accessible
+### Verification:
+- `node --check questions.js` & `node --check app.js`: clean syntax.
+- **71/71 automated tests pass** (`node /tmp/opencode/smoke.js`).
+- Zero runtime errors across all navigation paths and filters.
